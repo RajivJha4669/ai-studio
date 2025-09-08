@@ -1,12 +1,10 @@
-import { AIStudio } from '@/components/AIStudio';
+import { ChatInterface } from '@/components/ChatInterface';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function Home() {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
-        <AIStudio />
-      </div>
+      <ChatInterface />
     </ErrorBoundary>
   );
 }

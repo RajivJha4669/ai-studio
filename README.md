@@ -1,34 +1,44 @@
 # AI Studio
 
-A modern React web application that simulates an AI studio for generating amazing content with different styles. Built with Next.js, TypeScript, and TailwindCSS.
+A modern, ChatGPT-inspired React web application that simulates an AI studio for generating amazing content with different styles. Built with Next.js, TypeScript, and TailwindCSS, featuring a sleek dark/light theme interface with real-time chat functionality.
 
 ## 🚀 Features
 
 ### Core Functionality
-- **Image Upload & Preview**: Upload PNG/JPG images (≤10MB) with client-side downscaling to ≤1920px
-- **Prompt Input**: Text input field for describing generation requirements
-- **Style Selection**: Dropdown with 5 style options (Editorial, Streetwear, Vintage, Minimalist, Artistic)
-- **Live Summary**: Real-time preview of image + prompt + style combination
-- **Mock API Generation**: Simulated generation with 1-2s delay and 20% error rate
-- **Generation History**: localStorage-based history of last 5 generations with restore functionality
+- **Unified Chat Interface**: ChatGPT-like experience with text and image input in a single interface
+- **Image Upload & Processing**: Upload PNG/JPG images (≤10MB) with interactive cropping and client-side downscaling to ≤1920px
+- **Style Selection**: 5 style options (Editorial, Streetwear, Vintage, Minimalist, Artistic) with emoji integration
+- **Live Preview**: Real-time preview of image + prompt + style combination
+- **Mock API Generation**: Simulated generation with 1-2s delay and 20% error rate for realistic testing
+- **Generation History**: localStorage-based history with restore functionality and custom confirmation dialogs
 
 ### Advanced Features
 - **Error Handling**: Exponential backoff retry logic (max 3 attempts) for failed requests
-- **Loading States**: Spinner and abort functionality during generation
+- **Loading States**: Custom typing indicators and abort functionality during generation
 - **Accessibility**: Full keyboard navigation, focus states, and ARIA attributes
-- **Performance**: React.memo optimizations and efficient re-rendering
+- **Performance**: React.memo optimizations, efficient re-rendering, and code splitting
 - **PWA Ready**: Manifest file and offline-ready architecture
 - **Error Boundaries**: Graceful error handling with user-friendly fallbacks
+- **Theme System**: Dark/light mode with smooth transitions and persistent preferences
+
+### User Experience
+- **Responsive Design**: Mobile-first approach with touch-friendly interactions
+- **Smooth Animations**: Custom scrollbars, backdrop blur effects, and transition animations
+- **Data Persistence**: Chat messages and generation history saved to localStorage
+- **Collapsible Sidebar**: Clean history management with custom confirmation dialogs
+- **Auto-scroll**: Messages automatically scroll to show latest content
+- **Image Cropping**: Interactive image cropper with precise control and preview
 
 ## 🛠️ Tech Stack
 
 - **Framework**: Next.js 15.5.2 with App Router
 - **Language**: TypeScript (strict mode)
-- **Styling**: TailwindCSS 4.0
+- **Styling**: TailwindCSS 4.0 with custom design system
 - **Testing**: Jest + React Testing Library + Playwright
 - **Code Quality**: ESLint + Prettier
 - **State Management**: React hooks (useState, useCallback, useEffect)
-- **Storage**: localStorage for generation history
+- **Storage**: localStorage for generation history and chat persistence
+- **Image Processing**: Canvas API for client-side image manipulation
 
 ## 📦 Installation & Setup
 
@@ -86,22 +96,27 @@ npm run lint
 src/
 ├── app/                    # Next.js App Router
 │   ├── api/generate/      # Mock API endpoint
-│   ├── layout.tsx         # Root layout with metadata
+│   ├── globals.css        # Global styles and design system
+│   ├── layout.tsx         # Root layout with theme provider
 │   └── page.tsx           # Home page
 ├── components/            # React components
 │   ├── __tests__/         # Component unit tests
-│   ├── AIStudio.tsx       # Main application component
+│   ├── ChatInterface.tsx  # Main chat interface
+│   ├── ChatInput.tsx      # Unified input component
+│   ├── ChatMessage.tsx    # Message display component
+│   ├── ConfirmationDialog.tsx # Custom confirmation dialogs
 │   ├── ErrorBoundary.tsx  # Error boundary wrapper
-│   ├── GenerateButton.tsx # Generation button with loading states
-│   ├── GenerationHistory.tsx # History display and restore
-│   ├── ImageUpload.tsx    # File upload with validation
-│   ├── LiveSummary.tsx    # Real-time preview
-│   ├── PromptInput.tsx    # Text input for prompts
-│   └── StyleSelector.tsx  # Style dropdown
+│   ├── ImageCropper.tsx   # Interactive image cropping
+│   ├── SideDrawer.tsx     # Collapsible sidebar
+│   ├── TypingLoader.tsx   # AI typing indicator
+│   └── ThemeToggle.tsx    # Theme switcher
+├── contexts/              # React contexts
+│   └── ThemeContext.tsx   # Theme management
 ├── types/                 # TypeScript type definitions
 │   └── index.ts
 └── utils/                 # Utility functions
-    └── imageUtils.ts      # Image processing and validation
+    ├── errorUtils.ts      # Error handling utilities
+    └── imageUtils.ts      # Image processing utilities
 ```
 
 ## 🎨 Design Decisions
@@ -109,7 +124,7 @@ src/
 ### Architecture
 - **Component-based**: Modular, reusable components with clear separation of concerns
 - **Type Safety**: Strict TypeScript configuration for better development experience
-- **Performance**: React.memo for preventing unnecessary re-renders
+- **Performance**: React.memo, useCallback, and useMemo for preventing unnecessary re-renders
 - **Error Handling**: Comprehensive error boundaries and user feedback
 
 ### User Experience
@@ -117,78 +132,89 @@ src/
 - **Progressive Enhancement**: Works without JavaScript for basic functionality
 - **Responsive Design**: Mobile-first approach with TailwindCSS
 - **Loading States**: Clear feedback during async operations
+- **Data Persistence**: Seamless experience across browser sessions
 
 ### Data Flow
 - **Unidirectional**: Props down, callbacks up pattern
 - **Local State**: React hooks for component state management
-- **Persistence**: localStorage for generation history
-- **API Integration**: RESTful API design with proper error handling
+- **Persistence**: localStorage for user data and preferences
 
-## 🔧 API Documentation
+## 🌟 Key Features in Detail
 
-### POST /api/generate
+### Chat Interface
+- **Unified Input**: Single input field for text and image uploads
+- **Live Preview**: Real-time updates as you type or upload images
+- **Message History**: Persistent chat messages with timestamps
+- **Auto-scroll**: Automatically scrolls to show latest messages
 
-Generates AI content based on uploaded image, prompt, and style.
+### Image Processing
+- **Interactive Cropping**: Drag to reposition, handles for resizing
+- **Client-side Processing**: No server uploads, all processing in browser
+- **Format Support**: PNG, JPG with automatic format detection
+- **Size Optimization**: Automatic downscaling to optimal dimensions
 
-**Request Body:**
-```json
-{
-  "imageDataUrl": "data:image/jpeg;base64,...",
-  "prompt": "A beautiful sunset over mountains",
-  "style": "Editorial"
-}
-```
+### Theme System
+- **Dark/Light Modes**: Smooth transitions between themes
+- **Persistent Preferences**: Theme choice saved across sessions
+- **System Integration**: Respects user's system preferences
+- **Custom Design System**: Consistent colors, spacing, and typography
 
-**Success Response (200):**
-```json
-{
-  "id": "gen_1234567890_abc123",
-  "imageUrl": "https://picsum.photos/512/512?random=1234567890",
-  "prompt": "A beautiful sunset over mountains",
-  "style": "Editorial",
-  "createdAt": "2024-01-01T00:00:00.000Z"
-}
-```
+## 🚀 Performance Optimizations
 
-**Error Response (500):**
-```json
-{
-  "message": "Model overloaded"
-}
-```
+- **Code Splitting**: Automatic route-based code splitting with Next.js
+- **Image Optimization**: Client-side processing reduces server load
+- **Memoization**: Strategic use of React.memo and useCallback
+- **Lazy Loading**: Components loaded only when needed
+- **Bundle Optimization**: Tree shaking and dead code elimination
 
-## 🚀 Deployment
+## 🔧 Development
 
-The application is ready for deployment on platforms like Vercel, Netlify, or any Node.js hosting service.
+### Available Scripts
+- `npm run dev` - Start development server with Turbopack
+- `npm run build` - Build for production with Turbopack
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+- `npm test` - Run unit tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:e2e` - Run end-to-end tests
 
-### Vercel (Recommended)
-```bash
-npm install -g vercel
-vercel
-```
+### Code Quality
+- **TypeScript**: Strict mode enabled for type safety
+- **ESLint**: Configured with Next.js and Prettier rules
+- **Prettier**: Consistent code formatting
+- **Testing**: Comprehensive test coverage with RTL and Playwright
 
-### Docker
-```bash
-docker build -t ai-studio .
-docker run -p 3000:3000 ai-studio
-```
+## 📱 PWA Features
+
+- **Manifest**: Complete PWA manifest with icons and metadata
+- **Offline Ready**: Service worker architecture for offline functionality
+- **Installable**: Can be installed as a native app on mobile devices
+- **Responsive**: Optimized for all screen sizes
+
+## 🎯 Future Enhancements
+
+- **Real AI Integration**: Connect to actual AI image generation APIs
+- **Advanced Image Editing**: More sophisticated image manipulation tools
+- **Collaboration**: Real-time collaboration features
+- **Export Options**: Multiple export formats and quality settings
+- **Analytics**: Usage tracking and performance metrics
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
-- [Next.js](https://nextjs.org/) for the amazing React framework
-- [TailwindCSS](https://tailwindcss.com/) for the utility-first CSS framework
-- [React Testing Library](https://testing-library.com/) for testing utilities
-- [Playwright](https://playwright.dev/) for end-to-end testing
-- [Picsum](https://picsum.photos/) for placeholder images in the mock API
+- Built with [Next.js](https://nextjs.org/)
+- Styled with [TailwindCSS](https://tailwindcss.com/)
+- Icons from [Heroicons](https://heroicons.com/)
+- Developed with [Cursor](https://cursor.sh/) AI-powered editor

@@ -24,77 +24,88 @@ export const GenerateButton: React.FC<GenerateButtonProps> = ({
   const canRetry = error && retryCount < maxRetries;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <button
         type="button"
         onClick={isGenerating ? onAbort : onGenerate}
         disabled={!isGenerating && !canGenerate}
-        className={`w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+        className={`w-full flex items-center justify-center px-6 py-4 border border-transparent rounded-xl shadow-lg text-base font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 relative overflow-hidden group ${
           isGenerating
-            ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+            ? 'bg-destructive hover:bg-destructive/90 focus:ring-destructive/50 text-destructive-foreground'
             : canGenerate
-            ? 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
-            : 'bg-gray-400 cursor-not-allowed'
+            ? 'bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 focus:ring-primary/50 text-primary-foreground pulse-glow'
+            : 'bg-muted cursor-not-allowed text-muted-foreground'
         }`}
         aria-describedby={error ? 'generate-error' : undefined}
       >
-        {isGenerating ? (
-          <>
-            <LoadingSpinner className="-ml-1 mr-3 text-white" />
-            Abort Generation
-          </>
-        ) : (
-          <>
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-            Generate
-          </>
-        )}
+        {/* Animated background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        <div className="relative flex items-center">
+          {isGenerating ? (
+            <>
+              <LoadingSpinner className="mr-3 text-current" />
+              <span>Abort Generation</span>
+            </>
+          ) : (
+            <>
+              <div className="mr-3 p-1 bg-white/20 rounded-lg">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              <span>✨ Generate Magic</span>
+            </>
+          )}
+        </div>
       </button>
 
       {error && (
         <div
           id="generate-error"
-          className="bg-red-50 border border-red-200 rounded-md p-3"
+          className="bg-destructive/10 border border-destructive/20 rounded-xl p-4"
           role="alert"
         >
-          <div className="flex">
+          <div className="flex items-start">
             <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-red-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <div className="w-8 h-8 bg-destructive/20 rounded-full flex items-center justify-center">
+                <svg
+                  className="h-5 w-5 text-destructive"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
             </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Generation Failed</h3>
-              <div className="mt-2 text-sm text-red-700">
+            <div className="ml-3 flex-1">
+              <h3 className="text-sm font-semibold text-destructive">Generation Failed</h3>
+              <div className="mt-2 text-sm text-destructive/80">
                 <p>{error}</p>
                 {canRetry && (
-                  <p className="mt-1">
-                    Retry attempt {retryCount + 1} of {maxRetries} will happen automatically.
+                  <p className="mt-2 p-2 bg-destructive/5 rounded-lg border border-destructive/10">
+                    🔄 Retry attempt {retryCount + 1} of {maxRetries} will happen automatically.
                   </p>
                 )}
                 {!canRetry && retryCount >= maxRetries && (
-                  <p className="mt-1 font-medium">
-                    Maximum retry attempts reached. Please try again manually.
+                  <p className="mt-2 p-2 bg-destructive/5 rounded-lg border border-destructive/10 font-medium">
+                    ⚠️ Maximum retry attempts reached. Please try again manually.
                   </p>
                 )}
               </div>
