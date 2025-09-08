@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { STYLE_OPTIONS, StyleOption } from '@/utils/imageUtils';
+import React from 'react';
 
 interface StyleSelectorProps {
   value: StyleOption;

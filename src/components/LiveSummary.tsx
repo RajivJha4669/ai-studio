@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { StyleOption } from '@/types';
+import React from 'react';
 
 interface LiveSummaryProps {
   imageUrl: string | null;

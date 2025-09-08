@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
-import { validateImageFile, createImagePreview, downscaleImage } from '@/utils/imageUtils';
 import { ImageUploadState } from '@/types';
+import { createImagePreview, downscaleImage, validateImageFile } from '@/utils/imageUtils';
+import React, { useCallback, useState } from 'react';
 
 interface ImageUploadProps {
   onImageChange: (dataUrl: string, file: File) => void;

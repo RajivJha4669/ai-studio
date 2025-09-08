@@ -1,21 +1,22 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { ImageUpload } from './ImageUpload';
-import { PromptInput } from './PromptInput';
-import { StyleSelector } from './StyleSelector';
-import { LiveSummary } from './LiveSummary';
+import {
+    GenerationError,
+    GenerationHistoryItem,
+    GenerationRequest,
+    GenerationResponse,
+    GenerationState,
+    StyleOption,
+} from '@/types';
+import { DEFAULT_RETRY_CONFIG, RetryableError, withRetry } from '@/utils/errorUtils';
+import { STYLE_OPTIONS } from '@/utils/imageUtils';
+import React, { useCallback, useEffect, useState } from 'react';
 import { GenerateButton } from './GenerateButton';
 import { GenerationHistory } from './GenerationHistory';
-import {
-  GenerationRequest,
-  GenerationResponse,
-  GenerationError,
-  GenerationHistoryItem,
-  GenerationState,
-  StyleOption,
-} from '@/types';
-import { STYLE_OPTIONS } from '@/utils/imageUtils';
+import { ImageUpload } from './ImageUpload';
+import { LiveSummary } from './LiveSummary';
+import { PromptInput } from './PromptInput';
+import { StyleSelector } from './StyleSelector';
 
 const HISTORY_STORAGE_KEY = 'ai-studio-history';
 const MAX_HISTORY_ITEMS = 5;
@@ -71,34 +72,45 @@ export const AIStudio: React.FC = () => {
   }, []);
 
   const generateWithRetry = useCallback(
-    async (request: GenerationRequest, attempt: number = 1): Promise<void> => {
-      const maxRetries = 3;
+    async (request: GenerationRequest): Promise<void> => {
       const abortController = new AbortController();
 
       setGenerationState(prev => ({
         ...prev,
         isGenerating: true,
         error: null,
-        retryCount: attempt - 1,
+        retryCount: 0,
         abortController,
       }));
 
       try {
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const result = await withRetry(
+          async () => {
+            const response = await fetch('/api/generate', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(request),
+              signal: abortController.signal,
+            });
+
+            if (!response.ok) {
+              const errorData: GenerationError = await response.json();
+              throw new RetryableError(errorData.message);
+            }
+
+            return response.json() as Promise<GenerationResponse>;
           },
-          body: JSON.stringify(request),
-          signal: abortController.signal,
-        });
-
-        if (!response.ok) {
-          const errorData: GenerationError = await response.json();
-          throw new Error(errorData.message);
-        }
-
-        const result: GenerationResponse = await response.json();
+          DEFAULT_RETRY_CONFIG,
+          (attempt, error) => {
+            setGenerationState(prev => ({
+              ...prev,
+              retryCount: attempt,
+              error: error.message,
+            }));
+          }
+        );
         
         // Add to history
         addToHistory({
@@ -130,21 +142,13 @@ export const AIStudio: React.FC = () => {
 
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         
-        if (attempt < maxRetries) {
-          // Retry with exponential backoff
-          const delay = Math.pow(2, attempt) * 1000;
-          setTimeout(() => {
-            generateWithRetry(request, attempt + 1);
-          }, delay);
-        } else {
-          setGenerationState(prev => ({
-            ...prev,
-            isGenerating: false,
-            error: errorMessage,
-            retryCount: attempt,
-            abortController: null,
-          }));
-        }
+        setGenerationState(prev => ({
+          ...prev,
+          isGenerating: false,
+          error: errorMessage,
+          retryCount: DEFAULT_RETRY_CONFIG.maxRetries,
+          abortController: null,
+        }));
       }
     },
     [addToHistory]
