@@ -46,8 +46,8 @@
   --accent-foreground: #0f172a;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  --border: #d1d5db;
+  --input: #d1d5db;
   --ring: #6366f1;
   --radius: 0.75rem;
   
@@ -82,8 +82,8 @@
   --accent-foreground: #fafafa;
   --destructive: #f87171;
   --destructive-foreground: #0a0a0a;
-  --border: #27272a;
-  --input: #27272a;
+  --border: #404040;
+  --input: #404040;
   --ring: #818cf8;
   
   /* Dark Gradients */
@@ -159,14 +159,14 @@ body {
 
 /* Glass morphism effect */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="dark"] .glass {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 /* Gradient text */
