@@ -1,5 +1,4 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ImageUpload } from '../ImageUpload';
 
@@ -10,7 +9,7 @@ jest.mock('@/utils/imageUtils', () => ({
   downscaleImage: jest.fn(),
 }));
 
-import { validateImageFile, createImagePreview, downscaleImage } from '@/utils/imageUtils';
+import { createImagePreview, downscaleImage, validateImageFile } from '@/utils/imageUtils';
 
 const mockValidateImageFile = validateImageFile as jest.MockedFunction<typeof validateImageFile>;
 const mockCreateImagePreview = createImagePreview as jest.MockedFunction<typeof createImagePreview>;

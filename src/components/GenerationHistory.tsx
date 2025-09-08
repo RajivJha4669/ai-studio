@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { GenerationHistoryItem } from '@/types';
+import React from 'react';
 
 interface GenerationHistoryProps {
   history: GenerationHistoryItem[];

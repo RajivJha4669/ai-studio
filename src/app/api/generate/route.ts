@@ -1,5 +1,5 @@
+import { GenerationError, GenerationRequest, GenerationResponse } from '@/types';
 import { NextRequest, NextResponse } from 'next/server';
-import { GenerationRequest, GenerationResponse, GenerationError } from '@/types';
 
 // Simulate 20% error rate
 const shouldSimulateError = () => Math.random() < 0.2;

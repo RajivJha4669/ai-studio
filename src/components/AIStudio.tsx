@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { ImageUpload } from './ImageUpload';
-import { PromptInput } from './PromptInput';
-import { StyleSelector } from './StyleSelector';
-import { LiveSummary } from './LiveSummary';
+import {
+    GenerationError,
+    GenerationHistoryItem,
+    GenerationRequest,
+    GenerationResponse,
+    GenerationState,
+    StyleOption,
+} from '@/types';
+import { DEFAULT_RETRY_CONFIG, RetryableError, withRetry } from '@/utils/errorUtils';
+import { STYLE_OPTIONS } from '@/utils/imageUtils';
+import React, { useCallback, useEffect, useState } from 'react';
 import { GenerateButton } from './GenerateButton';
 import { GenerationHistory } from './GenerationHistory';
-import {
-  GenerationRequest,
-  GenerationResponse,
-  GenerationError,
-  GenerationHistoryItem,
-  GenerationState,
-  StyleOption,
-} from '@/types';
-import { STYLE_OPTIONS } from '@/utils/imageUtils';
-import { withRetry, RetryableError, DEFAULT_RETRY_CONFIG } from '@/utils/errorUtils';
+import { ImageUpload } from './ImageUpload';
+import { LiveSummary } from './LiveSummary';
+import { PromptInput } from './PromptInput';
+import { StyleSelector } from './StyleSelector';
 
 const HISTORY_STORAGE_KEY = 'ai-studio-history';
 const MAX_HISTORY_ITEMS = 5;
