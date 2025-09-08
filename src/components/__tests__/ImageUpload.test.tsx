@@ -1,5 +1,4 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ImageUpload } from '../ImageUpload';
 
@@ -7,14 +6,22 @@ import { ImageUpload } from '../ImageUpload';
 jest.mock('@/utils/imageUtils', () => ({
   validateImageFile: jest.fn(),
   createImagePreview: jest.fn(),
-  downscaleImage: jest.fn(),
 }));
 
-import { validateImageFile, createImagePreview, downscaleImage } from '@/utils/imageUtils';
+// Mock the ImageCropper component
+jest.mock('../ImageCropper', () => ({
+  ImageCropper: ({ onCrop, onCancel }: any) => (
+    <div data-testid="image-cropper">
+      <button onClick={() => onCrop('data:image/jpeg;base64,cropped')}>Crop</button>
+      <button onClick={onCancel}>Cancel</button>
+    </div>
+  ),
+}));
+
+import { createImagePreview, validateImageFile } from '@/utils/imageUtils';
 
 const mockValidateImageFile = validateImageFile as jest.MockedFunction<typeof validateImageFile>;
 const mockCreateImagePreview = createImagePreview as jest.MockedFunction<typeof createImagePreview>;
-const mockDownscaleImage = downscaleImage as jest.MockedFunction<typeof downscaleImage>;
 
 describe('ImageUpload', () => {
   const mockOnImageChange = jest.fn();
@@ -46,15 +53,13 @@ describe('ImageUpload', () => {
     expect(mockOnImageChange).not.toHaveBeenCalled();
   });
 
-  it('processes valid image file successfully', async () => {
+  it('opens cropper for valid image file', async () => {
     const user = userEvent.setup();
     const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
     const previewUrl = 'data:image/jpeg;base64,test';
-    const processedUrl = 'data:image/jpeg;base64,processed';
     
     mockValidateImageFile.mockReturnValue(null);
     mockCreateImagePreview.mockResolvedValue(previewUrl);
-    mockDownscaleImage.mockResolvedValue(processedUrl);
     
     render(<ImageUpload onImageChange={mockOnImageChange} />);
     
@@ -62,41 +67,17 @@ describe('ImageUpload', () => {
     await user.upload(input, file);
     
     await waitFor(() => {
-      expect(mockOnImageChange).toHaveBeenCalledWith(processedUrl, file);
-    });
-    
-    expect(screen.getByAltText('Upload preview')).toBeInTheDocument();
-  });
-
-  it('shows remove button when image is uploaded', async () => {
-    const user = userEvent.setup();
-    const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-    const previewUrl = 'data:image/jpeg;base64,test';
-    const processedUrl = 'data:image/jpeg;base64,processed';
-    
-    mockValidateImageFile.mockReturnValue(null);
-    mockCreateImagePreview.mockResolvedValue(previewUrl);
-    mockDownscaleImage.mockResolvedValue(processedUrl);
-    
-    render(<ImageUpload onImageChange={mockOnImageChange} />);
-    
-    const input = screen.getByLabelText(/upload image/i);
-    await user.upload(input, file);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Remove image')).toBeInTheDocument();
+      expect(screen.getByTestId('image-cropper')).toBeInTheDocument();
     });
   });
 
-  it('removes image when remove button is clicked', async () => {
+  it('calls onImageChange when crop is completed', async () => {
     const user = userEvent.setup();
     const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
     const previewUrl = 'data:image/jpeg;base64,test';
-    const processedUrl = 'data:image/jpeg;base64,processed';
     
     mockValidateImageFile.mockReturnValue(null);
     mockCreateImagePreview.mockResolvedValue(previewUrl);
-    mockDownscaleImage.mockResolvedValue(processedUrl);
     
     render(<ImageUpload onImageChange={mockOnImageChange} />);
     
@@ -104,23 +85,43 @@ describe('ImageUpload', () => {
     await user.upload(input, file);
     
     await waitFor(() => {
-      expect(screen.getByText('Remove image')).toBeInTheDocument();
+      expect(screen.getByTestId('image-cropper')).toBeInTheDocument();
     });
     
-    await user.click(screen.getByText('Remove image'));
+    await user.click(screen.getByText('Crop'));
     
-    expect(mockOnImageChange).toHaveBeenCalledWith('', null);
-    expect(screen.queryByAltText('Upload preview')).not.toBeInTheDocument();
+    expect(mockOnImageChange).toHaveBeenCalledWith('data:image/jpeg;base64,cropped', file);
+  });
+
+  it('cancels cropping when cancel button is clicked', async () => {
+    const user = userEvent.setup();
+    const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+    const previewUrl = 'data:image/jpeg;base64,test';
+    
+    mockValidateImageFile.mockReturnValue(null);
+    mockCreateImagePreview.mockResolvedValue(previewUrl);
+    
+    render(<ImageUpload onImageChange={mockOnImageChange} />);
+    
+    const input = screen.getByLabelText(/upload image/i);
+    await user.upload(input, file);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('image-cropper')).toBeInTheDocument();
+    });
+    
+    await user.click(screen.getByText('Cancel'));
+    
+    expect(screen.queryByTestId('image-cropper')).not.toBeInTheDocument();
+    expect(mockOnImageChange).not.toHaveBeenCalled();
   });
 
   it('handles drag and drop', async () => {
     const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
     const previewUrl = 'data:image/jpeg;base64,test';
-    const processedUrl = 'data:image/jpeg;base64,processed';
     
     mockValidateImageFile.mockReturnValue(null);
     mockCreateImagePreview.mockResolvedValue(previewUrl);
-    mockDownscaleImage.mockResolvedValue(processedUrl);
     
     render(<ImageUpload onImageChange={mockOnImageChange} />);
     
@@ -134,7 +135,7 @@ describe('ImageUpload', () => {
     });
     
     await waitFor(() => {
-      expect(mockOnImageChange).toHaveBeenCalledWith(processedUrl, file);
+      expect(screen.getByTestId('image-cropper')).toBeInTheDocument();
     });
   });
 });

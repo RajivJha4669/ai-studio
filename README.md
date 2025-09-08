@@ -20,6 +20,12 @@ A modern React web application that simulates an AI studio for generating amazin
 - **PWA Ready**: Manifest file and offline-ready architecture
 - **Error Boundaries**: Graceful error handling with user-friendly fallbacks
 
+## 🎬 Demo Video
+
+[![Demo Video Placeholder](https://drive.google.com/file/d/1uWa2LYVRT7voXh85vP_PUnrDTigBxLNK/view?usp=sharing)](https://drive.google.com/file/d/1uWa2LYVRT7voXh85vP_PUnrDTigBxLNK/view?usp=sharing)
+
+*Click above to watch the demo video (placeholder - replace with actual video link)*
+
 ## 🛠️ Tech Stack
 
 - **Framework**: Next.js 15.5.2 with App Router

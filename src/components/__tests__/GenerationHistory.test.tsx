@@ -1,8 +1,7 @@
-import React from 'react';
+import { GenerationHistoryItem } from '@/types';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GenerationHistory } from '../GenerationHistory';
-import { GenerationHistoryItem } from '@/types';
 
 describe('GenerationHistory', () => {
   const mockOnRestore = jest.fn();
@@ -14,7 +13,7 @@ describe('GenerationHistory', () => {
   it('shows empty state when no history', () => {
     render(<GenerationHistory history={[]} onRestore={mockOnRestore} />);
     
-    expect(screen.getByText('Generation History')).toBeInTheDocument();
+    expect(screen.getByText('Recent Generations')).toBeInTheDocument();
     expect(screen.getByText('Your recent generations will appear here')).toBeInTheDocument();
   });
 
@@ -38,7 +37,7 @@ describe('GenerationHistory', () => {
 
     render(<GenerationHistory history={history} onRestore={mockOnRestore} />);
     
-    expect(screen.getByText('Generation History')).toBeInTheDocument();
+    expect(screen.getByText('Recent Generations')).toBeInTheDocument();
     expect(screen.getByText('A beautiful sunset')).toBeInTheDocument();
     expect(screen.getByText('A mountain landscape')).toBeInTheDocument();
     expect(screen.getByText('Editorial')).toBeInTheDocument();

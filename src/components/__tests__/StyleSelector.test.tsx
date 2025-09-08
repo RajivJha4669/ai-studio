@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StyleSelector } from '../StyleSelector';
@@ -16,13 +15,13 @@ describe('StyleSelector', () => {
     expect(screen.getByLabelText('Style')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Editorial')).toBeInTheDocument();
     
-    // Check that all style options are present
+    // Check that all style options are present with emojis
     const select = screen.getByLabelText('Style');
-    expect(select).toContainHTML('<option value="Editorial">Editorial</option>');
-    expect(select).toContainHTML('<option value="Streetwear">Streetwear</option>');
-    expect(select).toContainHTML('<option value="Vintage">Vintage</option>');
-    expect(select).toContainHTML('<option value="Minimalist">Minimalist</option>');
-    expect(select).toContainHTML('<option value="Artistic">Artistic</option>');
+    expect(select).toContainHTML('<option value="Editorial">📰 Editorial</option>');
+    expect(select).toContainHTML('<option value="Streetwear">👟 Streetwear</option>');
+    expect(select).toContainHTML('<option value="Vintage">📻 Vintage</option>');
+    expect(select).toContainHTML('<option value="Minimalist">⚪ Minimalist</option>');
+    expect(select).toContainHTML('<option value="Artistic">🎨 Artistic</option>');
   });
 
   it('displays the current value', () => {

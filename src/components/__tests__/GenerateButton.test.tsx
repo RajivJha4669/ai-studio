@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GenerateButton } from '../GenerateButton';
@@ -23,7 +22,7 @@ describe('GenerateButton', () => {
       />
     );
     
-    expect(screen.getByText('Generate')).toBeInTheDocument();
+    expect(screen.getByText('✨ Generate Magic')).toBeInTheDocument();
     expect(screen.getByRole('button')).not.toBeDisabled();
   });
 
@@ -71,7 +70,7 @@ describe('GenerateButton', () => {
       />
     );
     
-    await user.click(screen.getByText('Generate'));
+    await user.click(screen.getByText('✨ Generate Magic'));
     expect(mockOnGenerate).toHaveBeenCalledTimes(1);
   });
 
@@ -107,7 +106,7 @@ describe('GenerateButton', () => {
     
     expect(screen.getByText('Generation Failed')).toBeInTheDocument();
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
-    expect(screen.getByText('Retry attempt 2 of 3 will happen automatically.')).toBeInTheDocument();
+    expect(screen.getByText(/Retry attempt 2 of 3 will happen automatically/)).toBeInTheDocument();
   });
 
   it('shows max retries reached message', () => {
@@ -123,7 +122,7 @@ describe('GenerateButton', () => {
       />
     );
     
-    expect(screen.getByText('Maximum retry attempts reached. Please try again manually.')).toBeInTheDocument();
+    expect(screen.getByText(/Maximum retry attempts reached. Please try again manually/)).toBeInTheDocument();
   });
 
   it('has proper accessibility attributes', () => {
@@ -142,7 +141,7 @@ describe('GenerateButton', () => {
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-describedby', 'generate-error');
     
-    const errorDiv = screen.getByText('Generation Failed').closest('div');
+    const errorDiv = screen.getByText('Generation Failed').closest('div')?.parentElement;
     expect(errorDiv).toHaveAttribute('id', 'generate-error');
     expect(errorDiv).toHaveAttribute('role', 'alert');
   });
