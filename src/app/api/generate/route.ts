@@ -1,5 +1,5 @@
+import { GenerationError, GenerationRequest, GenerationResponse } from '@/types';
 import { NextRequest, NextResponse } from 'next/server';
-import { GenerationRequest, GenerationResponse, GenerationError } from '@/types';
 
 // Simulate 20% error rate
 const shouldSimulateError = () => Math.random() < 0.2;
@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
     const body: GenerationRequest = await request.json();
     const { imageDataUrl, prompt, style } = body;
 
-    // Validate request
-    if (!imageDataUrl || !prompt || !style) {
+    // Validate request - only style is required
+    if (!style) {
       return NextResponse.json(
-        { message: 'Missing required fields' } as GenerationError,
+        { message: 'Style is required' } as GenerationError,
         { status: 400 }
       );
     }

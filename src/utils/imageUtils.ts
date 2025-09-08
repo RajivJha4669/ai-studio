@@ -1,5 +1,6 @@
 import { StyleOption } from '@/types';
 
+export type { StyleOption };
 export const STYLE_OPTIONS: StyleOption[] = [
   'Editorial',
   'Streetwear', 
@@ -30,53 +31,7 @@ export const validateImageFile = (file: File): string | null => {
   return null;
 };
 
-export const downscaleImage = (
-  file: File,
-  maxDimension: number = MAX_IMAGE_DIMENSION
-): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-      reject(new Error('Could not get canvas context'));
-      return;
-    }
-
-    img.onload = () => {
-      let { width, height } = img;
-
-      // Calculate new dimensions if image is too large
-      if (width > maxDimension || height > maxDimension) {
-        const aspectRatio = width / height;
-        if (width > height) {
-          width = maxDimension;
-          height = width / aspectRatio;
-        } else {
-          height = maxDimension;
-          width = height * aspectRatio;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-
-      // Draw and compress the image
-      ctx.drawImage(img, 0, 0, width, height);
-      
-      // Convert to data URL with compression
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-      resolve(dataUrl);
-    };
-
-    img.onerror = () => {
-      reject(new Error('Failed to load image'));
-    };
-
-    img.src = URL.createObjectURL(file);
-  });
-};
+// Image downscaling is now handled by the ImageCropper component
 
 export const createImagePreview = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
