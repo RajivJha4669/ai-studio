@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ImageCropperProps {
   imageUrl: string;
@@ -27,14 +28,21 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [cropArea, setCropArea] = useState<CropArea>({ x: 50, y: 50, width: 200, height: 200 });
+  const [cropArea, setCropArea] = useState<CropArea>({ x: 100, y: 75, width: 200, height: 150 });
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageDimensions, setImageDimensions] = useState({ width: 400, height: 300, offsetX: 0, offsetY: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  // Mount check for portal
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Reset when image URL changes
   useEffect(() => {
     setImageLoaded(false);
-    setCropArea({ x: 50, y: 50, width: 200, height: 200 });
+    // Center the crop area in the 400x300 canvas
+    setCropArea({ x: 100, y: 75, width: 200, height: 150 });
     
     // Fallback timeout - force show after 3 seconds
     const timeout = setTimeout(() => {
@@ -130,6 +138,42 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
   const handleImageLoad = useCallback(() => {
     console.log('Image loaded successfully');
     setImageLoaded(true);
+    
+    // Center the crop area based on the actual image dimensions
+    const img = imageRef.current;
+    if (img) {
+      const imgAspect = img.naturalWidth / img.naturalHeight;
+      const canvasAspect = 400 / 300;
+      
+      let drawWidth, drawHeight, offsetX, offsetY;
+      
+      if (imgAspect > canvasAspect) {
+        // Image is wider - fit to canvas width
+        drawWidth = 400;
+        drawHeight = 400 / imgAspect;
+        offsetX = 0;
+        offsetY = (300 - drawHeight) / 2;
+      } else {
+        // Image is taller - fit to canvas height
+        drawHeight = 300;
+        drawWidth = 300 * imgAspect;
+        offsetX = (400 - drawWidth) / 2;
+        offsetY = 0;
+      }
+      
+      // Center crop area within the visible image area
+      const cropWidth = Math.min(200, drawWidth * 0.8);
+      const cropHeight = Math.min(150, drawHeight * 0.8);
+      const cropX = offsetX + (drawWidth - cropWidth) / 2;
+      const cropY = offsetY + (drawHeight - cropHeight) / 2;
+      
+      setCropArea({
+        x: Math.max(0, Math.min(cropX, 400 - cropWidth)),
+        y: Math.max(0, Math.min(cropY, 300 - cropHeight)),
+        width: cropWidth,
+        height: cropHeight
+      });
+    }
   }, []);
 
   const handleImageError = useCallback(() => {
@@ -256,9 +300,21 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
     drawCropOverlay();
   }, [drawCropOverlay]);
 
-  return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-card border border-border rounded-2xl p-6 max-w-lg w-full">
+  if (!mounted) return null;
+
+  const modalContent = (
+    <div 
+      className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] p-4"
+      style={{ 
+        position: 'fixed', 
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999
+      }}
+    >
+      <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-foreground">Crop Image</h3>
           <button
@@ -324,4 +380,6 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
